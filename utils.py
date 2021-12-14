@@ -6,7 +6,6 @@ import numpy as np
 from heapq import heapify, heappush, heappop
 
 def path(startingNode,endNode,index,H,startingTime,endTime):
-    print("booo")
     index.insert(0,startingNode)
     index.append(endNode)
     #it creates the new graph
@@ -19,17 +18,16 @@ def path(startingNode,endNode,index,H,startingTime,endTime):
     for start,end in c:
         print(start)
         if start  not in dG.nodes(): 
-            print("{} is not in the new graph".format(start))
+            print("{} doesn't interact in the chosen interval of time".format(start))
             return final_path
         if end not in dG.nodes():
-            print("{} is not in the new graph".format(end))
+            print("{} doesn't interact in the chosen interval of time".format(end))
             return final_path
         pred=dijkstra(start,end,dG,startingTime,endTime)
         #check if 2 nodes are not connected
         if  pred[end]==np.inf:
             break
         path=traceback(pred,end,start)
-        print(path)
         if final_path:
             final_path.extend(path[1:])
         else :
