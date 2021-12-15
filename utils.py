@@ -25,7 +25,7 @@ def path(startingNode,endNode,index,H,startingTime,endTime):
             return final_path
         pred=dijkstra(start,end,dG,startingTime,endTime)
         #check if 2 nodes are not connected
-        if  pred[end]==np.inf:
+        if  pred[end]==-1:
             break
         path=traceback(pred,end,start)
         if final_path:
@@ -47,7 +47,7 @@ def links(index):
     return full_links
         
         
-#it renames the nodes and return the mapping between nodes and integers
+#it renames the nodes and return the mapping between nodes and integers and the path
 def first(G_loaded):
     dG,mapping=maps(G_loaded)
     index=random_path(8,mapping)
@@ -160,9 +160,22 @@ def new_graph(H,startingTime,endTime):
     for start_node,end_node in edges:
         diz=H.get_edge_data(start_node,end_node)
         #it creates a new graph only with interactions that happened in the desired interval
+        #and it takes the smaller one
         l=sorted(diz.items(),key= lambda x : x[1]["weight"])
         for el in l:
             if startingTime<=el[0] and endTime>=el[0]:
                 G.add_edge(start_node, end_node, weight=el[1]["weight"])
                 break
     return G
+
+def create_path(l):
+    paths = iter(l)
+    c=list(zip(paths, paths))
+    c=links(c)
+    return c    
+
+def visualizePath(dg,nodes,path):
+    H = dg.subgraph(nodes)
+    edge_colors = ['red' if e in path else 'black' for e in H.edges]   
+    nx.draw(H, edge_color=edge_colors, node_color='black', width=0.7, alpha=0.9)
+    
