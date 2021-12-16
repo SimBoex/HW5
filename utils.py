@@ -5,25 +5,23 @@ import random
 import numpy as np
 from heapq import heapify, heappush, heappop
 
-def path(startingNode,endNode,index,H,startingTime,endTime):
+def path(startingNode,endNode,index,H,startingTime,endTime,mapping):
     index.insert(0,startingNode)
     index.append(endNode)
     #it creates the new graph
     dG=new_graph(H,startingTime,endTime)
-    paths = iter(index)
+    c=create_path(index)
     final_path=[]
-    c=list(zip(paths, paths))
-    c=links(c)
-    print("the path is ",c)
+    print("the path is: ")
+    print(c)
     for start,end in c:
-        print(start)
         if start  not in dG.nodes(): 
-            print("{} doesn't interact in the chosen interval of time".format(start))
+            print("the node {} doesn't interact in the chosen interval of time".format(start))
             return final_path
         if end not in dG.nodes():
-            print("{} doesn't interact in the chosen interval of time".format(end))
+            print("the node {} doesn't interact in the chosen interval of time".format(end))
             return final_path
-        pred=dijkstra(start,end,dG,startingTime,endTime)
+        pred=dijkstra(start,end,dG,startingTime,endTime,mapping)
         #check if 2 nodes are not connected
         if  pred[end]==-1:
             break
@@ -42,7 +40,8 @@ def links(index):
         full_links.append(index[i])
         v=index[i][1]
         v2=index[i+1][0]
-        full_links.append((v,v2))
+        if v!=v2:
+            full_links.append((v,v2))
     full_links.append(index[l-1])
     return full_links
         
@@ -51,7 +50,7 @@ def links(index):
 def first(G_loaded):
     dG,mapping=maps(G_loaded)
     index=random_path(8,mapping)
-    return dG,index
+    return dG,index,mapping
 
 #it returns the random path
 def random_path(n,mapping):
@@ -72,12 +71,11 @@ def labels(l,mapping):
     return l
 
 #the dijkstra algorithm
-def dijkstra(Starting_vertex,End_vertex,dG,startingTime,endTime):
-    N=len(dG.nodes())
+def dijkstra(Starting_vertex,End_vertex,dG,startingTime,endTime,mapping):
     #it creates the min_heap
     min_heap = []
     heapify(min_heap)
-    
+    N=len(mapping)
     Final_distance=0
     dist=np.ones(N)* np.inf
     visited=np.zeros(N, dtype=bool)
@@ -93,7 +91,6 @@ def dijkstra(Starting_vertex,End_vertex,dG,startingTime,endTime):
         element = heappop(min_heap)[1]
         #it creates a set of (u,v) edges
         for start_node,end_node in list(dG.edges(element)):
-                
             if not visited[end_node]:
                 diz=dG.get_edge_data(start_node,end_node)
                 weight=diz["weight"]
@@ -118,7 +115,7 @@ def dijkstra(Starting_vertex,End_vertex,dG,startingTime,endTime):
         if element == End_vertex:
             Final_distance=dist[element]
             end=True
-            print("Final_distance between {} and {} ".format(Starting_vertex,End_vertex),Final_distance)
+            print("smallest distance between {} and {} ".format(Starting_vertex,End_vertex),Final_distance)
             
     #if during all the path we don't reach the End_vertex means the 2 nodes are not connected
     if not end:
@@ -136,22 +133,7 @@ def traceback(pred,target,start):
     res.insert(0,start)
     return res
 
-#it computes all the paths using the nx.all_simple_paths method to check the weight
-#we find the smaller one weight to go from the starting node to the end node
-def check(dG,starting,end,startingTime,endTime,cutoff):
-    dG=new_graph(dG,startingTime,endTime)
-    paths = nx.all_simple_paths(dG, starting, end,cutoff)
-    old=100000
-    tot_weight=0
-    for path in map(nx.utils.pairwise, paths):
-        paths=list(path)
-        for start, end in paths:
-            diz=dG.get_edge_data(start,end)
-            tot_weight+=diz["weight"]
-        if tot_weight<old:
-            old=tot_weight
-            print("path is {}, total weight is {} ".format(paths,tot_weight))
-        tot_weight=0
+
         
 #it computes the new graph with only the links in a time interval  that have the smaller weight     
 def new_graph(H,startingTime,endTime):
@@ -160,7 +142,7 @@ def new_graph(H,startingTime,endTime):
     for start_node,end_node in edges:
         diz=H.get_edge_data(start_node,end_node)
         #it creates a new graph only with interactions that happened in the desired interval
-        #and it takes the smaller one
+        #and it takes the othe the smallest weight
         l=sorted(diz.items(),key= lambda x : x[1]["weight"])
         for el in l:
             if startingTime<=el[0] and endTime>=el[0]:
@@ -171,11 +153,13 @@ def new_graph(H,startingTime,endTime):
 def create_path(l):
     paths = iter(l)
     c=list(zip(paths, paths))
+    if len(c)%2==0:
+        c.append((l[-2],l[-1]))
     c=links(c)
     return c    
 
-def visualizePath(dg,nodes,path):
+def visualizePath(dg,nodes,p):
     H = dg.subgraph(nodes)
-    edge_colors = ['red' if e in path else 'black' for e in H.edges]   
+    edge_colors = ['red' if e in p else 'black' for e in H.edges()]   
     nx.draw(H, edge_color=edge_colors, node_color='black', width=0.7, alpha=0.9)
     
