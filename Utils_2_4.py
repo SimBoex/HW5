@@ -39,6 +39,7 @@ def Min_cut(G,user1,user2,startingTime,endTime,mapping):
     edges=[]
     path=True
     while path:
+        print("looking for a new path...")
         pred=dijkstra(user1,user2,G,mapping)
         #if user1 and user2 are not connected then pred[user2]==-1
         if pred[user2]==-1:
@@ -75,7 +76,7 @@ def visualize_minCut(H,l,nodes):
     print()
     print("The starting and the end node are filled with red")
     print("The link that will be removed,it is evidenced by a red edge".format(nodes[0],nodes[-1]))
-    plt.figure(num=None, figsize=(10, 10),dpi=40)
+    plt.figure(num=None, figsize=(15, 15),dpi=60)
     H = H.subgraph(nodes)
     pos = nx.spring_layout(H)
     edge_colors = ['red' if e in l else "black"   for e in H.edges()] 
