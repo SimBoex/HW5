@@ -13,3 +13,9 @@ it's the file where there is the preprocessing (ex 1) and two exercises, 2.3 and
 
 - Utils_2_4.py,   
  it's the file where there are all the functions used for the exercise 2.4
+
+-Algorithmic Question,
+contains the theoretical question implemented and explained 
+
+- Functionality/visualization 1 contains both the functionality one with all its features and its visualization
+- 
